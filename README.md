@@ -275,10 +275,10 @@ Let's add flash messages in `app/views/layouts/application.html.erb`.
 	</html>
 ```
 
-And we can convert Html to Haml quickly by using this tool:
+And we can convert Html to Haml quickly by using this tool:         
 http://htmltohaml.com/      
 
-So first, we rename `application.html.erb` to `application.html.haml` under `app/views/layouts`. And then convert the Html to haml.
+So first, we rename `application.html.erb` to `application.html.haml` under `app/views/layouts`. And then convert the Html to Haml.
 ```haml
 !!!
 %html
@@ -311,8 +311,104 @@ $ rake db:migrate
 Let's restart our server and go to `http://localhost:3000/users/sign_up`, we'll see:
 ![image](https://github.com/TimingJL/wiki/blob/master/pic/basic_signup.jpeg)
 
-
 Now, we have the ability to create a new user.
+
+
+
+### Add Association
+SO next what we want to do is add association between the article model and the user model.        
+
+In `app/models/article.rb`
+```ruby
+class Article < ApplicationRecord
+	belongs_to :user
+end
+```
+
+And then in `app/models/user.rb`
+```ruby
+class User < ApplicationRecord
+  # Include default devise modules. Others available are:
+  # :confirmable, :lockable, :timeoutable and :omniauthable
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :trackable, :validatable
+  has_many :articles
+end
+```
+
+### Create a Migration to Add User ID
+The next thing we need to do is create a migration to add a `user_id` to the articles table in our database.
+```console
+$ rails g migration add_user_id_to_articles user_id:integer:index
+$ rake db:migrate
+```
+
+
+### Build Out A New Article
+Next thing we want to do is build out a new article from the current user.        
+In `app/controllers/articles_controller.rb`, we need to tweak the `new` action and the `create` action a bit.
+```ruby
+def new
+	@article = current_user.articles.build
+end
+
+def create
+	@article = current_user.articles.build(article_params)
+	if @article.save
+		redirect_to @article
+	else
+		render 'new'
+	end
+end
+```
+
+Let's test it in rails console:
+```console
+$ rails c
+
+> @article = Article.last
+```
+
+And you can see the `user_id` in the very end is `nil`.
+```
+  Article Load (0.7ms)  SELECT  "articles".* FROM "articles" ORDER BY "articles"."id" DESC LIMIT ?  [["LIMIT", 1]]          
+=> #<Article id: 4, title: "HTML", content: "HyperText Markup Language, commonly abbreviated as...",           
+created_at: "2016-08-10 10:39:55", updated_at: "2016-08-10 10:39:55", user_id: nil>
+```
+
+Next, let's try creating a new article which has the `user_id: 1`.
+Let's go to `http://localhost:3000/articles/new` to create a new article.        
+Then back to our console:
+```console
+$ rails c
+
+> @article = Article.last
+```
+
+You can see the last article we just create has `user_id` of 1. That is working correctly.
+```
+  Article Load (0.2ms)  SELECT  "articles".* FROM "articles" ORDER BY "articles"."id" DESC LIMIT ?  [["LIMIT", 1]]         
+=> #<Article id: 5, title: "Haml", content: "Haml (HTML Abstraction Markup Language) is a templ...",          
+created_at: "2016-08-10 15:40:27", updated_at: "2016-08-10 15:40:27", user_id: 1>
+```
+
+Then we assign `user_id` to the previous articles to avoid errors (or you can delete these articles which `user_id` is `nil`).
+```console
+> @article = Article.first
+> @article.user_id = 1
+> @article.save
+
+> @article = Article.find(2)
+> @article.user_id = 1
+> @article.save
+...
+...
+
+```
+
+
+
+
 
 
 
