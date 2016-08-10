@@ -214,4 +214,106 @@ In `app/views/articles/index.html.haml`, we add the title, created date, and pre
 ```
 ![image](https://github.com/TimingJL/wiki/blob/master/pic/loop_articles.jpeg)
 
+
+# User
+The next thing I wanna do is add devise gems to our user.
+```console
+$ rails generate devise:install
+
+
+===============================================================================
+
+Some setup you must do manually if you haven't yet:
+
+  1. Ensure you have defined default url options in your environments files. Here
+     is an example of default_url_options appropriate for a development environment
+     in config/environments/development.rb:
+
+       config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+
+     In production, :host should be set to the actual host of your application.
+
+  2. Ensure you have defined root_url to *something* in your config/routes.rb.
+     For example:
+
+       root to: "home#index"
+
+  3. Ensure you have flash messages in app/views/layouts/application.html.erb.
+     For example:
+
+       <p class="notice"><%= notice %></p>
+       <p class="alert"><%= alert %></p>
+
+  4. You can copy Devise views (for customization) to your app by running:
+
+       rails g devise:views
+
+===============================================================================
+```
+
+
+Let's add flash messages in `app/views/layouts/application.html.erb`.
+```html
+
+	<!DOCTYPE html>
+	<html>
+	  <head>
+	    <title>Wiki</title>
+	    <%= csrf_meta_tags %>
+
+	    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+	    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+	  </head>
+
+	  <body>
+
+		<p class="notice"><%= notice %></p>
+		<p class="alert"><%= alert %></p>
+		
+	    <%= yield %>
+	  </body>
+	</html>
+```
+
+And we can convert Html to Haml quickly by using this tool:
+http://htmltohaml.com/      
+
+So first, we rename `application.html.erb` to `application.html.haml` under `app/views/layouts`. And then convert the Html to haml.
+```haml
+!!!
+%html
+  %head
+    %meta{:content => "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}/
+    %title Wiki
+    = csrf_meta_tags
+    = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload'
+    = javascript_include_tag 'application', 'data-turbolinks-track': 'reload'
+  %body
+    %p.notice= notice
+    %p.alert= alert
+    = yield
+```
+
+
+And the we generate devise views by running:
+```console
+$ rails g devise:views
+```
+
+
+
+The next thing we want to do is add a model for our users.
+```console
+$ rails g devise User
+$ rake db:migrate
+```
+
+Let's restart our server and go to `http://localhost:3000/users/sign_up`, we'll see:
+![image](https://github.com/TimingJL/wiki/blob/master/pic/basic_signup.jpeg)
+
+
+Now, we have the ability to create a new user.
+
+
+
 To be continued...
