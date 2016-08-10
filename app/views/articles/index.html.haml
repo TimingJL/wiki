@@ -6,4 +6,5 @@
 	%p
 		= truncate(article.content, length: 200)
 
-= link_to "New Article", new_article_path
+- if user_signed_in?
+	= link_to "New Article", new_article_path

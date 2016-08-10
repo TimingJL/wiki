@@ -392,7 +392,7 @@ You can see the last article we just create has `user_id` of 1. That is working 
 created_at: "2016-08-10 15:40:27", updated_at: "2016-08-10 15:40:27", user_id: 1>
 ```
 
-Then we assign `user_id` to the previous articles to avoid errors (or you can delete these articles which `user_id` is `nil`).
+Then we assign `user_id` to the previous articles to avoid errors (or you can just delete these articles which `user_id` is `nil`).
 ```console
 > @article = Article.first
 > @article.user_id = 1
@@ -406,9 +406,29 @@ Then we assign `user_id` to the previous articles to avoid errors (or you can de
 
 ```
 
+# Authentication
+So next, let's add some authentication.      
+So back into our `app/controllers/articles_controller.rb`, let's add another `before_action`
+```ruby
+before_action :authenticate_user!, except: [:index, :show]
+```
+What this means if a user who is not sign-in are tring to do anything, other than viewing the index page or the show page, for example, if they try to create a new artilce, they would be rerouted to the sign-in page.
 
 
+Let's only show the 'New Article' link if user sign-in.        
+In `app/views/index.html.haml`
+```haml
+- @articles.each do |article|
+	%h2= article.title
+	%p
+		Publish at
+		= article.created_at.strftime('%b %d, %Y')
+	%p
+		= truncate(article.content, length: 200)
 
+- if user_signed_in?
+	= link_to "New Article", new_article_path
+```
 
 
 
