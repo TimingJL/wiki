@@ -39,6 +39,8 @@ $ bundle install
 
 Then run the `rails server` and go to `http://localhost:3000` to make sure everything is correct.  
 
+
+### Rubygems Install
 First, we add a few rubygems that we're going to use.            
 
 In `Gemfile`:
@@ -55,7 +57,7 @@ TO install `simple_form`, we need to run the generator:
 $ rails generate simple_form:install --bootstrap
 ```
 
-
+### Add The Ability To Create AN Article
 Next, we wanna generate a model and a controller for our article.
 ```consle
 // Model
@@ -189,7 +191,27 @@ In `app/views/articles/index.html.haml`
 = link_to "New Article", new_article_path
 ```
 
+### List Out All Of The Article On The Homepage
+Next, we wanna list out all of the article on the root of the application.       
+In `app/controllers/articles_controller.rb`
+```ruby
+def index
+	@articles = Article.all.order("created_at DESC")
+end
+```
 
+In `app/views/articles/index.html.haml`, we add the title, created date, and preview for our article.
+```haml
+- @articles.each do |article|
+	%h2= article.title
+	%p
+		Publish at
+		= article.created_at.strftime('%b %d, %Y')
+	%p
+		= truncate(article.content, length: 200)
 
+= link_to "New Article", new_article_path
+```
+![image](https://github.com/TimingJL/wiki/blob/master/pic/loop_articles.jpeg)
 
 To be continued...
