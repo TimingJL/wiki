@@ -39,8 +39,9 @@ $ bundle install
 
 Then run the `rails server` and go to `http://localhost:3000` to make sure everything is correct.  
 
-First, we add some rubygems that we're going to use.
-In `Gemfile`
+First, we add a few rubygems that we're going to use.            
+
+In `Gemfile`:
 ```
 gem 'therubyracer'
 gem 'devise'
@@ -48,6 +49,147 @@ gem 'simple_form', github: 'kesha-antonov/simple_form', branch: 'rails-5-0'
 gem 'haml', '~> 4.0.5'
 gem 'bootstrap-sass', '~> 3.2.0.2'
 ```
+
+TO install `simple_form`, we need to run the generator:
+```console
+$ rails generate simple_form:install --bootstrap
+```
+
+
+Next, we wanna generate a model and a controller for our article.
+```consle
+// Model
+$ rails g model Article title:string content:text
+$ rake db:migrate
+
+// Controller
+$ rails g controller Articles
+```
+
+Let's define an index action for our homepage in `app/controllers/articles_controller.rb`
+```ruby
+class ArticlesController < ApplicationController
+	def index
+	end
+end
+```
+
+And open up our `config/routes.rb` and create some routes for our articles.
+```
+Rails.application.routes.draw do
+  resources :articles
+  root 'articles#index'
+end
+```
+
+Let's create a new file under `app/views/articles` and save it as `index.html.haml`.
+```haml
+%h1 This is the articles#index placeholder
+```
+
+
+So let's add the ability to create a new article.          
+In `app/controllers/articles_controller.rb`
+```ruby
+class ArticlesController < ApplicationController
+	def index
+	end
+
+	def new
+		@article = Article.new
+	end
+
+	def create
+		@article = Article.new(article_params)
+		if @article.save
+			redirect_to @article
+		else
+			render 'new'
+		end
+	end
+
+	private
+
+	def article_params
+		params.require(:article).permit(:title, :content)
+	end
+end
+```
+
+Under `app/views/articles`, let's create a `new` page and save it as `new.html.haml`. And new a partial page and save it as `_form.html.haml`.      
+
+Then, inside of our `app/views/articles/_form.html.haml`
+```haml
+= simple_form_for @article do |f|
+	= f.input :title
+	= f.input :content
+	= f.submit
+```
+
+And then go back to `app/views/articles/new.html.haml`
+```haml
+%h1 New Article
+
+= render 'form'
+
+= link_to 'Back', root_path
+```
+
+Back in our `app/controllers/articles_controller.rb`, let's define our show action.
+```ruby
+class ArticlesController < ApplicationController
+	before_action :find_article, only: [:show]
+
+	def index
+	end
+
+	def show
+	end
+
+	def new
+		@article = Article.new
+	end
+
+	def create
+		@article = Article.new(article_params)
+		if @article.save
+			redirect_to @article
+		else
+			render 'new'
+		end
+	end
+
+	private
+
+	def find_article
+		@article = Article.find(params[:id])
+	end
+
+	def article_params
+		params.require(:article).permit(:title, :content)
+	end
+end
+```
+
+Let's go ahead and create a new file under `app/views/articles` and save it as `show.html.haml`.
+```haml
+%h1= @article.title
+%p= @article.content
+
+= link_to "Back", root_path
+```
+![image](https://github.com/TimingJL/wiki/blob/master/pic/test_article.jpeg)
+
+
+Next, let's add the ability to create a new article from the homepage.        
+In `app/views/articles/index.html.haml`
+```haml
+%h1 This is the articles#index placeholder
+
+= link_to "New Article", new_article_path
+```
+
+
 
 
 To be continued...
