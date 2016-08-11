@@ -13,7 +13,7 @@ This week we built a Wikipedia Type Application. We have the Users and they have
 
 https://mackenziechild.me/12-in-12/9/         
 
-
+![image](https://github.com/TimingJL/wiki/blob/master/pic/demo.jpeg)
 
 ### Highlights of this course
 1. Users
@@ -577,7 +577,79 @@ In `app/views/articles/edit.html.haml`
 = link_to 'Back', root_path
 ``` 
 
+# Styling
+
+### Import Boostrap
+https://github.com/twbs/bootstrap-sass          
+
+To use bootstrap-sass, first we need to rename `application.css` to `application.css.scss` in `app/assets/stylesheets/`.       
+And then import Bootstrap in `app/assets/stylesheets/application.css.scss`:
+```scss
+@import "bootstrap-mincer";
+@import "bootstrap";
+```
+Note:        
+File to import not found or unreadable: 
+bootstrap-sprockets Only for Twitter Bootstrap 3, bootstrap-sprockets is used.
+
+
+Then in `app/assets/javascripts/application.js`, we import `//= require bootstrap-sprockets` under `//= require jquery` like:
+```js
+//= require jquery
+//= require jquery_ujs
+//= require bootstrap-sprockets
+//= require turbolinks
+//= require_tree .
+```
+
+### Structure
+
+In `app/views/layouts/application.html.haml`, let's add some container.
+```haml
+!!!
+%html
+%head
+    %title Wiki
+    = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true
+    = javascript_include_tag 'application', 'data-turbolinks-track' => true
+    = csrf_meta_tags
+%body
+    %nav.navbar.navbar-default.navbar-fixed-top
+        .container
+            = link_to "Wiki", root_path, class: "navbar-brand"
+            %ul.nav.navbar-nav.navbar-right
+                - if user_signed_in?
+                    %li= link_to "New Article", new_article_path
+    %p.notice= notice
+    %p.alert= alert
+
+    .container
+        .row
+            .col-md-8
+                = yield
+            .col-md-4
+                %ul.list-group
+                    = link_to "All Articles", root_path, class: "list-group-item"
+                    - Category.all.each do |category|
+                        = link_to category.name, articles_path(category: category.name), class: "list-group-item"
+```
+![image](https://github.com/TimingJL/wiki/blob/master/pic/styling_index.jpeg)
 
 
 
-To be continued...
+In `app/views/articles/show.html.haml`
+```haml
+%h1= @article.title
+%p= @article.content
+
+.btn-group
+	= link_to "Back", root_path, class: "btn btn-default"
+	- if user_signed_in?
+		= link_to "Edit", edit_article_path(@article), class: "btn btn-default"
+		= link_to "Delete", article_path(@article), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-default"
+```
+![image](https://github.com/TimingJL/wiki/blob/master/pic/styling_button.jpeg)
+
+
+
+Finished!
