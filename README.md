@@ -504,7 +504,7 @@ In `app/views/layouts/application.html.haml`
     %ul
         %li= link_to "All Articles", root_path
         - Category.all.each do |category|
-            %li= link_to category.name, articles_path(category.name)
+            %li= link_to category.name, articles_path(category: category.name)
 ```
 
 In the `app/controllers/articles_controller.rb`, we need to tweak the index action.
@@ -532,6 +532,51 @@ Let's go to `app/views/articles/index.html.haml` to change the title to link_to
 - if user_signed_in?
 	= link_to "New Article", new_article_path
 ```
+
+# Edit and Destroy Article
+In `app/controllers/articles_controller.rb`
+```ruby
+before_action :find_article, only: [:show, :edit, :update, :destroy]
+
+...
+...
+
+def update
+	if @article.update(article_params)
+		redirect_to @article
+	else
+		render 'edit'
+	end		
+end
+
+def destroy
+	@article.destroy
+	redirect_to root_path
+end
+```
+
+
+In `app/views/articles/show.html.haml`
+```haml
+%h1= @article.title
+%p= @article.content
+
+= link_to "Back", root_path
+= link_to "Edit", edit_article_path(@article)
+= link_to "Delete", article_path(@article), method: :delete, data: { confirm: "Are you sure?" }
+```
+
+
+And let's create a new file and save it as `edit.html.haml` under `app/views/articles`.        
+In `app/views/articles/edit.html.haml`
+```haml
+%h1 Edit Article
+
+= render 'form'
+
+= link_to 'Back', root_path
+``` 
+
 
 
 
