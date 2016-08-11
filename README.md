@@ -406,9 +406,9 @@ Then we assign `user_id` to the previous articles to avoid errors (or you can ju
 
 ```
 
-# Authentication
+### Authentication
 So next, let's add some authentication.      
-So back into our `app/controllers/articles_controller.rb`, let's add another `before_action`
+Back into our `app/controllers/articles_controller.rb`, let's add another `before_action`
 ```ruby
 before_action :authenticate_user!, except: [:index, :show]
 ```
@@ -420,6 +420,109 @@ In `app/views/index.html.haml`
 ```haml
 - @articles.each do |article|
 	%h2= article.title
+	%p
+		Publish at
+		= article.created_at.strftime('%b %d, %Y')
+	%p
+		= truncate(article.content, length: 200)
+
+- if user_signed_in?
+	= link_to "New Article", new_article_path
+```
+
+# Categories
+The next thing we need to do is add categories to our articles.        
+To do that, I'm going to create a model for our categories.     
+```console
+$ rails g model Category name:string
+$ rake db:migrate
+```
+
+Then we need to add a category_id to our article's table. That is bacause we wanna associate the categories to the articles.
+```console
+$ rails g migration add_category_id_to_articles category_id:integer
+$ rake db:migrate
+```
+
+In `app/models/article.rb`
+```ruby
+class Article < ApplicationRecord
+	belongs_to :user
+	belongs_to :category
+end
+```
+
+In `app/models/category.rb`
+```ruby
+class Category < ApplicationRecord
+	has_many :articles
+end
+```
+
+Let's pop into the rails console to create a few categories to work with.
+```console
+$ rails c
+
+> Category.connection
+> Category.create(name: "Art")
+> Category.create(name: "Technology")
+> Category.create(name: "Politics")
+```
+
+Inside of our `app/views/_form.html.haml`, we want to add a selection.
+```haml
+= simple_form_for @article do |f|
+	= f.collection_select :category_id, Category.all, :id, :name, { promt: "Choose a category" }
+	= f.input :title
+	= f.input :content
+	= f.submit
+```
+
+In `app/controllers/articles_controller.rb`, we need to permit the `category_id` so it can save to the database, otherwise rails will ignore it.
+```ruby
+def article_params
+	params.require(:article).permit(:title, :content, :category_id)
+end
+```
+
+Next thing we want to do is list out all the categories.       
+In `app/views/layouts/application.html.haml`
+```haml
+!!!
+%html
+    %head
+        %meta{:content => "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}/
+        %title Wiki
+        = csrf_meta_tags
+        = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload'
+        = javascript_include_tag 'application', 'data-turbolinks-track': 'reload'
+    %body
+        %p.notice= notice
+        %p.alert= alert
+        = yield
+
+    %ul
+        %li= link_to "All Articles", root_path
+        - Category.all.each do |category|
+            %li= link_to category.name, articles_path(category.name)
+```
+
+In the `app/controllers/articles_controller.rb`, we need to tweak the index action.
+```ruby
+def index
+	if params[:category].blank?
+		@articles = Article.all.order("created_at DESC")
+	else
+		@category_id = Category.find_by(name: params[:category]).id
+		@articles = Article.where(category_id: @category_id).order("created_at DESC")
+	end
+end
+```
+
+Let's go to `app/views/articles/index.html.haml` to change the title to link_to
+```haml
+- @articles.each do |article|
+	%h2= link_to article.title, article
 	%p
 		Publish at
 		= article.created_at.strftime('%b %d, %Y')
