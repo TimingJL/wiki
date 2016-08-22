@@ -4,8 +4,9 @@
 ![Rails version](https://img.shields.io/badge/Rails-v5.0.0-blue.svg)
 ![Ruby version](https://img.shields.io/badge/Ruby-v2.3.1p112-red.svg)
 
-Mackenzie Child's video really inspired me. So I decided to follow all of his rails video tutorial to learn how to build a web app. Through the video, I would try to build the web app by my self and record the courses step by step in text to facilitate the review.
+Mackenzie Child's video really inspired me. So I decided to follow all of his rails video tutorial to learn how to build a web app. Through the video, I would try to build the web app by my self and record the courses step by step in text to facilitate the review.              
 
+![image](https://github.com/TimingJL/wiki/blob/master/pic/machenziechild.jpeg)
 
 # Project 9: How To Build A Wikipedia Clone With Rails       
 This week we built a Wikipedia Type Application. We have the Users and they have ability to Add, Edit, Destroy articles postings and each article is assigned to a category, and we are able to filter between the various categories to see only articles within that category (For example, only “Art” or only “Technology” articles).
@@ -20,7 +21,7 @@ https://mackenziechild.me/12-in-12/9/
 2. Articles
 3. Categories
 4. HAML
-5. Bootstrap
+5. Custom Styling
 
 
 # Create A Wiki
